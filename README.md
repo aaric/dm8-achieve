@@ -264,8 +264,8 @@ CREATE TABLE trg_test (
   name VARCHAR(30)
 );
 CREATE TABLE trg_test_log (
-  name_history VARCHAR(100),
-  name_now VARCHAR(100)
+  name_old VARCHAR(100),
+  name_new VARCHAR(100)
 );
 INSERT INTO trg_test VALUES (1, 'zhangsan');
 
