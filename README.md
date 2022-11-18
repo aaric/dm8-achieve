@@ -87,7 +87,7 @@ INSERT INTO employee VALUES (1, '达梦V8','2008-05-30 00:00:00', 30000, 1);
 COMMIT;
 
 -- 修改数据
-UPDATE employee SET salary='35000' WHERE employee_id = 1;
+UPDATE employee SET salary = '35000' WHERE employee_id = 1;
 COMMIT;
 
 -- 查询数据
@@ -156,4 +156,95 @@ DROP INDEX idx_emp_salary;
 ### 1.6 事务特性
 
 ```sql
+-- 插入数据
+INSERT INTO employee VALUES (1, '达梦V8', '2020-05-30 00:00:00', 50000, 1);
+
+-- 创建保存点
+SAVEPOINT my_insert;
+
+-- 更新数据记录
+UPDATE employee SET department_id = 2 WHERE employee_id = 1;
+
+-- 不提交（回滚）查看数据记录
+SELECT department_id, employee_id FROM employee WHERE employee_id = 1;
+
+-- 回滚到保存点
+ROLLBACK TO my_insert;
+```
+
+### 1.7 其他
+
+1. 序列
+
+```sql
+-- 创建序列
+CREATE SEQUENCE seq1
+  START WITH 1 INCREMENT BY 1 MAXVALUE 10000
+  CACHE 5 NOCYCLE;
+
+-- 查询下一个序列号
+SELECT seq1.nextval() FROM dual;
+
+-- 查询当前序列号
+SELECT seq1.currval() FROM dual;
+```
+
+2. [物化视图](https://eco.dameng.com/document/dm/zh-cn/sql-dev/practice-mv.html)
+
+```sql
+-- 定义物化视图
+CREATE MATERIALIZED VIEW mv1 
+  BUILD IMMEDIATE REFRESH COMPLETE ON COMMIT AS
+  SELECT department_id as depo_no, count(*) as total FROM employee GROUP BY department_id;
+
+-- 查看（验证）物化视图
+SELECT * FROM mv1 WHERE depo_no = 1;
+
+-- 插入测试数据
+INSERT INTO employee VALUES (2, '达梦V10', '2020-05-31 00:00:00', 60000, 1);
+```
+
+3. [函数](https://eco.dameng.com/document/dm/zh-cn/sql-dev/practice-func.html)
+
+```sql
+-- 创建函数
+CREATE OR REPLACE FUNCTION random_password (len IN NUMBER)
+RETURN VARCHAR2
+AS
+  pwdstr VARCHAR2(128);
+BEGIN
+  pwdstr = dbms_random.string('x', len);
+  RETURN pwdstr;
+END;
+
+-- 调用函数
+SELECT random_password(12) FROM dual;
+
+-- 删除函数
+DROP FUNCTION random_password;
+```
+
+4. [存储过程](https://eco.dameng.com/document/dm/zh-cn/sql-dev/practice-pro.html)
+
+```sql
+-- 准备数据表
+CREATE TABLE test (
+  id INTEGER PRIMARY KEY,
+  name VARCHAR(30)
+);
+
+-- 创建存储过程
+CREATE OR REPLACE PROCEDURE pro1 (n IN INTEGER)
+AS
+  j INTEGER;
+BEGIN
+  FOR j IN 1..n LOOP
+    INSERT INTO test VALUES (j, 'test'|| j);
+  END LOOP;
+END;
+
+-- 调用存储过程
+BEGIN
+  pro1(5);
+END;
 ```
