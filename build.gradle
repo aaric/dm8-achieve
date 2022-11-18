@@ -1,0 +1,112 @@
+plugins {
+    id "java"
+    id "io.freefair.lombok" version "6.5.1"
+    id "io.spring.dependency-management" version "1.1.0"
+    id "org.springframework.boot" version "2.3.2.RELEASE"
+}
+
+group = "com.sample"
+version = "0.1.0-SNAPSHOT"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    maven { url "https://maven.aliyun.com/repository/public" }
+    maven { url "https://repository.incarcloud.com/content/groups/public" }
+}
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+    all {
+        exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
+    }
+}
+
+dependencies {
+    implementation "org.slf4j:slf4j-api"
+
+    implementation fileTree(dir: "lib", includes: ["*.jar"])
+
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-log4j2"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+
+    implementation "com.github.xiaoymin:knife4j-spring-boot-starter"
+
+    implementation "cn.dev33:sa-token-spring-boot-starter"
+
+//    testImplementation "org.junit.jupiter:junit-jupiter"
+//    testImplementation "org.junit.jupiter:junit-jupiter-params"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+
+    developmentOnly "org.springframework.boot:spring-boot-devtools"
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "com.github.xiaoymin:knife4j-dependencies:3.0.3"
+    }
+
+    dependencies {
+        dependencySet(group: "org.slf4j", version: "1.7.36") {
+            entry "slf4j-api"
+            entry "slf4j-simple"
+        }
+
+//        dependencySet(group: "org.junit.jupiter", version: "5.6.2") {
+//            entry "junit-jupiter"
+//            entry "junit-jupiter-params"
+//        }
+
+        dependency "cn.dev33:sa-token-spring-boot-starter:1.32.0"
+    }
+}
+
+compileJava {
+    options.encoding = "UTF-8"
+    options.compilerArgs << "-Xlint:unchecked"
+}
+
+compileTestJava {
+    options.encoding = "UTF-8"
+    options.compilerArgs << "-Xlint:unchecked"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task removeLombokConfig() {
+    def subProjectPath = project.projectDir
+    if (null != subProjectPath) {
+        def lombokConfigFile = new File(subProjectPath, "lombok.config")
+        if (lombokConfigFile.exists()) {
+            lombokConfigFile.delete()
+        }
+    }
+}
+
+task removeOutputLog() {
+    def subProjectPath = project.projectDir
+    if (null != subProjectPath) {
+        subProjectPath.list().each { filename ->
+            if (filename.endsWith(".log") || filename.equalsIgnoreCase("logs")) {
+                def subPath = new File(subProjectPath, filename)
+                if (subPath.isDirectory()) {
+                    for (File leafFile : subPath.listFiles()) {
+                        leafFile.delete()
+                    }
+                }
+                subPath.delete()
+            }
+        }
+    }
+}
+
+defaultTasks "assemble"
