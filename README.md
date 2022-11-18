@@ -228,7 +228,7 @@ DROP FUNCTION random_password;
 
 ```sql
 -- 准备数据表
-CREATE TABLE test (
+CREATE TABLE pro_test (
   id INTEGER PRIMARY KEY,
   name VARCHAR(30)
 );
@@ -239,7 +239,7 @@ AS
   j INTEGER;
 BEGIN
   FOR j IN 1..n LOOP
-    INSERT INTO test VALUES (j, 'test'|| j);
+    INSERT INTO pro_test VALUES (j, 'test'|| j);
   END LOOP;
 END;
 
@@ -247,4 +247,40 @@ END;
 BEGIN
   pro1(5);
 END;
+
+-- 查询数据
+SELECT * FROM pro_test;
+
+-- 删除存储过程
+DROP PROCEDURE pro1;
+```
+
+5. [触发器](https://eco.dameng.com/document/dm/zh-cn/sql-dev/practice-trg.html)
+
+```sql
+-- 准备数据表+数据
+CREATE TABLE trg_test (
+  id INTEGER PRIMARY KEY,
+  name VARCHAR(30)
+);
+CREATE TABLE trg_test_log (
+  name_history VARCHAR(100),
+  name_now VARCHAR(100)
+);
+INSERT INTO trg_test VALUES (1, 'zhangsan');
+
+-- 创建触发器
+CREATE OR REPLACE TRIGGER trg1
+BEFORE UPDATE OF name ON trg_test
+FOR EACH ROW
+DECLARE
+BEGIN
+  INSERT INTO trg_test_log VALUES (:old.name, :new.name);
+END;
+
+-- 更新数据
+UPDATE trg_test SET name = 'lisi' WHERE id = 1;
+
+-- 查询数据
+SELECT * FROM trg_test_log;
 ```
