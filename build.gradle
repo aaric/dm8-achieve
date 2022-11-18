@@ -2,11 +2,12 @@ plugins {
     id "java"
     id "io.freefair.lombok" version "6.5.1"
     id "io.spring.dependency-management" version "1.1.0"
+    id "team.yi.semantic-gitlog" version "0.5.17"
     id "org.springframework.boot" version "2.3.2.RELEASE"
 }
 
 group = "com.sample"
-version = "0.1.0-SNAPSHOT"
+version = "0.2.0-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -80,6 +81,32 @@ compileTestJava {
 
 test {
     useJUnitPlatform()
+}
+
+task checkstyle(type: Checkstyle) {
+    source = "src"
+    include "**/*.java"
+    ignoreFailures false
+}
+//checkstyleMain.exclude("**/proto/**/*.java")
+
+changelog {
+    toRef = "master"
+    isUnstable = true
+
+    jsonFile = file("${project.rootDir}/CHANGELOG.json")
+    fileSets = [
+            {
+                template = file("${project.rootDir}/config/gitlog/CHANGELOG.mustache")
+                target = file("${project.rootDir}/CHANGELOG.md")
+            }
+    ]
+}
+
+derive {
+    toRef = "master"
+    isUnstable = true
+    derivedVersionMark = "NEXT_VERSION:=="
 }
 
 task removeLombokConfig() {
