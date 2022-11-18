@@ -6,4 +6,290 @@
 [![Gradle](https://img.shields.io/badge/Gradle-7.4.2-success.svg?style=flat&logo=gradle)](https://docs.gradle.org/7.4/userguide/installation.html)
 [![Release](https://img.shields.io/badge/Release-0.1.0-informational.svg)](https://github.com/aaric/dm8-achieve/releases)
 
-> DM8 Learning.
+> *[达梦线上实验室。](https://eco.dameng.com/tour/)*
+
+## 1 基本特性
+
+### 1.1 数据库
+
+```sql
+-- 查看数据库运行状态
+SELECT status$ FROM v$instance;
+
+-- 查看版本信息
+SELECT banner FROM V$version;
+```
+
+### 1.2 用户权限
+
+```sql
+-- 创建用户
+CREATE USER test IDENTIFIED BY "test123abc";
+
+-- 授予用户基本权限
+GRANT RESOURCE TO test;
+GRANT SELECT ON dmhr.employee TO test;
+GRANT SELECT ON dmhr.department TO test;
+
+-- 查看用户信息
+SELECT
+  username, account_status, created FROM dba_users
+WHERE username = upper('test');
+
+-- 切换用户
+CONN test/test123abc;
+
+-- 查看当前登录用户
+SELECT user FROM dual;
+```
+
+### 1.3 操作数据表
+
+```sql
+-- 创建 department 表
+CREATE TABLE department
+(
+  department_id INTEGER PRIMARY KEY,
+  department_name VARCHAR(30) NOT NULL
+);
+
+-- 创建 employee 表
+CREATE TABLE employee
+(
+  employee_id INTEGER,
+  employee_name VARCHAR2(20) NOT NULL,
+  hire_date DATE,
+  salary INTEGER,
+  department_id INTEGER NOT NULL
+);
+
+-- 添加表约束
+ALTER TABLE employee MODIFY (hire_date NOT NULL);
+ALTER TABLE employee ADD CONSTRAINT pk_empid PRIMARY KEY (employee_id);
+ALTER TABLE employee ADD CONSTRAINT fk_dept FOREIGN KEY (department_id) REFERENCES department (department_id);
+
+-- 查看表结构
+DESC employee;
+
+-- 查看表主键外键
+SELECT
+  table_name, constraint_name, constraint_type
+FROM all_constraints
+WHERE owner = upper('test') AND table_name = upper('employee');
+```
+
+### 1.4 检索数据
+
+```sql
+-- 插入数据
+INSERT INTO department VALUES (1, '数据库产品中心');
+INSERT INTO employee VALUES (1, '达梦V8','2008-05-30 00:00:00', 30000, 1);
+COMMIT;
+
+-- 修改数据
+UPDATE employee SET salary = '35000' WHERE employee_id = 1;
+COMMIT;
+
+-- 查询数据
+SELECT employee_id, salary FROM employee;
+
+-- 删除数据
+DELETE FROM employee;
+DELETE FROM department WHERE department_id = 1;
+
+-- 批量插入数据
+CREATE TABLE t1 AS
+  SELECT rownum AS id,
+    trunc(dbms_random.value(0, 100)) AS random_id,
+    dbms_random.string('x', 20) AS random_string
+  FROM dual
+CONNECT BY level <= 100000;
+
+-- 查询数据条数
+SELECT COUNT(*) FROM t1;
+
+-- 排序数据
+SELECT * FROM t1 where rownum < 10 ORDER BY random_id DESC;
+
+-- 分组查询
+INSERT INTO department (department_id, department_name)
+  SELECT department_id, department_name FROM dmhr.department;
+INSERT INTO employee (employee_id, employee_name, hire_date, salary, department_id)
+  SELECT employee_id, employee_name, hire_date, salary, department_id FROM dmhr.employee;
+COMMIT;
+
+SELECT
+  dept.department_name as Department, count(*) as Total
+FROM employee emp, department dept
+WHERE emp.department_id=dept.department_id
+GROUP BY dept.department_name
+HAVING count(*) > 20;
+
+-- 定义视图
+CREATE OR REPLACE VIEW v1 AS
+  SELECT
+    dept.department_name, emp.employee_name, emp.salary, emp.hire_date
+  FROM employee emp, department dept
+  WHERE salary > 10000
+  AND hire_date >= '2013-08-01'
+  AND emp.department_id = dept.department_id;
+
+-- 查询视图
+SELECT * FROM v1 WHERE salary < 12000;
+```
+
+### 1.5 创建索引
+
+```sql
+-- 创建普通索引
+CREATE INDEX idx_emp_salary ON employee(salary);
+
+-- 查看索引结构
+SELECT
+  table_name, index_name, index_type
+FROM user_indexes WHERE index_name = upper('idx_emp_salary');
+
+-- 删除索引
+DROP INDEX idx_emp_salary;
+```
+
+### 1.6 事务特性
+
+```sql
+-- 插入数据
+INSERT INTO employee VALUES (1, '达梦V8', '2020-05-30 00:00:00', 50000, 1);
+
+-- 创建保存点
+SAVEPOINT my_insert;
+
+-- 更新数据记录
+UPDATE employee SET department_id = 2 WHERE employee_id = 1;
+
+-- 不提交（回滚）查看数据记录
+SELECT department_id, employee_id FROM employee WHERE employee_id = 1;
+
+-- 回滚到保存点
+ROLLBACK TO my_insert;
+```
+
+### 1.7 其他
+
+1. 序列
+
+```sql
+-- 创建序列
+CREATE SEQUENCE seq1
+  START WITH 1 INCREMENT BY 1 MAXVALUE 10000
+  CACHE 5 NOCYCLE;
+
+-- 查询下一个序列号
+SELECT seq1.nextval() FROM dual;
+
+-- 查询当前序列号
+SELECT seq1.currval() FROM dual;
+```
+
+2. [物化视图](https://eco.dameng.com/document/dm/zh-cn/sql-dev/practice-mv.html)
+
+```sql
+-- 定义物化视图
+CREATE MATERIALIZED VIEW mv1 
+  BUILD IMMEDIATE REFRESH COMPLETE ON COMMIT AS
+  SELECT department_id as depo_no, count(*) as total FROM employee GROUP BY department_id;
+
+-- 查看（验证）物化视图
+SELECT * FROM mv1 WHERE depo_no = 1;
+
+-- 插入测试数据
+INSERT INTO employee VALUES (2, '达梦V10', '2020-05-31 00:00:00', 60000, 1);
+```
+
+3. [函数](https://eco.dameng.com/document/dm/zh-cn/sql-dev/practice-func.html)
+
+```sql
+-- 创建函数
+CREATE OR REPLACE FUNCTION random_password (len IN NUMBER)
+RETURN VARCHAR2
+AS
+  pwdstr VARCHAR2(128);
+BEGIN
+  pwdstr = dbms_random.string('x', len);
+  RETURN pwdstr;
+END;
+
+-- 调用函数
+SELECT random_password(12) FROM dual;
+
+-- 删除函数
+DROP FUNCTION random_password;
+```
+
+4. [存储过程](https://eco.dameng.com/document/dm/zh-cn/sql-dev/practice-pro.html)
+
+```sql
+-- 准备数据表
+CREATE TABLE pro_test
+(
+  id INTEGER PRIMARY KEY,
+  name VARCHAR(30)
+);
+
+-- 创建存储过程
+CREATE OR REPLACE PROCEDURE pro1 (n IN INTEGER)
+AS
+  j INTEGER;
+BEGIN
+  FOR j IN 1..n LOOP
+    INSERT INTO pro_test VALUES (j, 'test'|| j);
+  END LOOP;
+END;
+
+-- 调用存储过程
+BEGIN
+  pro1(5);
+END;
+
+-- 查询数据
+SELECT * FROM pro_test;
+
+-- 删除存储过程
+DROP PROCEDURE pro1;
+```
+
+5. [触发器](https://eco.dameng.com/document/dm/zh-cn/sql-dev/practice-trg.html)
+
+```sql
+-- 准备数据表+数据
+CREATE TABLE trg_test
+(
+  id INTEGER PRIMARY KEY,
+  name VARCHAR(30)
+);
+CREATE TABLE trg_test_log
+(
+  name_old VARCHAR(100),
+  name_new VARCHAR(100)
+);
+INSERT INTO trg_test VALUES (1, 'zhangsan');
+
+-- 创建触发器
+CREATE OR REPLACE TRIGGER trg1
+BEFORE UPDATE OF name ON trg_test
+FOR EACH ROW
+DECLARE
+BEGIN
+  INSERT INTO trg_test_log VALUES (:old.name, :new.name);
+END;
+
+-- 更新数据
+UPDATE trg_test SET name = 'lisi' WHERE id = 1;
+
+-- 查询数据
+SELECT * FROM trg_test_log;
+```
+
+6. [分区表](https://eco.dameng.com/document/dm/zh-cn/sql-dev/advanced-partitoning.html)
+
+```sql
+-- NA
+```
