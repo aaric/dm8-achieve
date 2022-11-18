@@ -228,7 +228,8 @@ DROP FUNCTION random_password;
 
 ```sql
 -- 准备数据表
-CREATE TABLE pro_test (
+CREATE TABLE pro_test
+(
   id INTEGER PRIMARY KEY,
   name VARCHAR(30)
 );
@@ -259,11 +260,13 @@ DROP PROCEDURE pro1;
 
 ```sql
 -- 准备数据表+数据
-CREATE TABLE trg_test (
+CREATE TABLE trg_test
+(
   id INTEGER PRIMARY KEY,
   name VARCHAR(30)
 );
-CREATE TABLE trg_test_log (
+CREATE TABLE trg_test_log
+(
   name_old VARCHAR(100),
   name_new VARCHAR(100)
 );
@@ -283,4 +286,10 @@ UPDATE trg_test SET name = 'lisi' WHERE id = 1;
 
 -- 查询数据
 SELECT * FROM trg_test_log;
+```
+
+6. [分区表](https://eco.dameng.com/document/dm/zh-cn/sql-dev/advanced-partitoning.html)
+
+```sql
+-- NA
 ```
