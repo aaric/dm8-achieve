@@ -6,4 +6,154 @@
 [![Gradle](https://img.shields.io/badge/Gradle-7.4.2-success.svg?style=flat&logo=gradle)](https://docs.gradle.org/7.4/userguide/installation.html)
 [![Release](https://img.shields.io/badge/Release-0.1.0-informational.svg)](https://github.com/aaric/dm8-achieve/releases)
 
-> DM8 Learning.
+> *[达梦线上实验室。](https://eco.dameng.com/tour/)*
+
+## 1 基本特性
+
+### 1.1 数据库
+
+```sql
+-- 查看数据库运行状态
+SELECT status$ FROM v$instance;
+
+-- 查看版本信息
+SELECT banner FROM V$version;
+```
+
+### 1.2 用户权限
+
+```sql
+-- 创建用户
+CREATE USER test IDENTIFIED BY "test123abc";
+
+-- 授予用户基本权限
+GRANT RESOURCE TO test;
+GRANT SELECT ON dmhr.employee TO test;
+GRANT SELECT ON dmhr.department TO test;
+
+-- 查看用户信息
+SELECT
+  username, account_status, created FROM dba_users
+WHERE username = upper('test');
+
+-- 切换用户
+CONN test/test123abc;
+
+-- 查看当前登录用户
+SELECT user FROM dual;
+```
+
+### 1.3 操作数据表
+
+```sql
+-- 创建 department 表
+CREATE TABLE department
+(
+  department_id INTEGER PRIMARY KEY,
+  department_name VARCHAR(30) NOT NULL
+);
+
+-- 创建 employee 表
+CREATE TABLE employee
+(
+  employee_id INTEGER,
+  employee_name VARCHAR2(20) NOT NULL,
+  hire_date DATE,
+  salary INTEGER,
+  department_id INTEGER NOT NULL
+);
+
+-- 添加表约束
+ALTER TABLE employee MODIFY (hire_date NOT NULL);
+ALTER TABLE employee ADD CONSTRAINT pk_empid PRIMARY KEY (employee_id);
+ALTER TABLE employee ADD CONSTRAINT fk_dept FOREIGN KEY (department_id) REFERENCES department (department_id);
+
+-- 查看表结构
+DESC employee;
+
+-- 查看表主键外键
+SELECT
+  table_name, constraint_name, constraint_type
+FROM all_constraints
+WHERE owner = upper('test') AND table_name = upper('employee');
+```
+
+### 1.4 检索数据
+
+```sql
+-- 插入数据
+INSERT INTO department VALUES (1, '数据库产品中心');
+INSERT INTO employee VALUES (1, '达梦V8','2008-05-30 00:00:00', 30000, 1);
+COMMIT;
+
+-- 修改数据
+UPDATE employee SET salary='35000' WHERE employee_id = 1;
+COMMIT;
+
+-- 查询数据
+SELECT employee_id, salary FROM employee;
+
+-- 删除数据
+DELETE FROM employee;
+DELETE FROM department WHERE department_id = 1;
+
+-- 批量插入数据
+CREATE TABLE t1 AS
+  SELECT rownum AS id,
+    trunc(dbms_random.value(0, 100)) AS random_id,
+    dbms_random.string('x', 20) AS random_string
+  FROM dual
+CONNECT BY level <= 100000;
+
+-- 查询数据条数
+SELECT COUNT(*) FROM t1;
+
+-- 排序数据
+SELECT * FROM t1 where rownum < 10 ORDER BY random_id DESC;
+
+-- 分组查询
+INSERT INTO department (department_id, department_name)
+  SELECT department_id, department_name FROM dmhr.department;
+INSERT INTO employee (employee_id, employee_name, hire_date, salary, department_id)
+  SELECT employee_id, employee_name, hire_date, salary, department_id FROM dmhr.employee;
+COMMIT;
+
+SELECT
+  dept.department_name as Department, count(*) as Total
+FROM employee emp, department dept
+WHERE emp.department_id=dept.department_id
+GROUP BY dept.department_name
+HAVING count(*) > 20;
+
+-- 定义视图
+CREATE OR REPLACE VIEW v1 AS
+  SELECT
+    dept.department_name, emp.employee_name, emp.salary, emp.hire_date
+  FROM employee emp, department dept
+  WHERE salary > 10000
+  AND hire_date >= '2013-08-01'
+  AND emp.department_id = dept.department_id;
+
+-- 查询视图
+SELECT * FROM v1 WHERE salary < 12000;
+```
+
+### 1.5 创建索引
+
+```sql
+-- 创建普通索引
+CREATE INDEX idx_emp_salary ON employee(salary);
+
+-- 查看索引结构
+SELECT
+  table_name, index_name, index_type
+FROM user_indexes WHERE index_name = upper('idx_emp_salary');
+
+-- 删除索引
+DROP INDEX idx_emp_salary;
+```
+
+### 1.6 事务特性
+
+```sql
+```
