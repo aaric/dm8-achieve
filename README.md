@@ -6,7 +6,8 @@
 [![Gradle](https://img.shields.io/badge/Gradle-7.4.2-success.svg?style=flat&logo=gradle)](https://docs.gradle.org/7.4/userguide/installation.html)
 [![Release](https://img.shields.io/badge/Release-0.2.0-informational.svg)](https://github.com/aaric/dm8-achieve/releases)
 
-> *[达梦线上实验室。](https://eco.dameng.com/tour/)*
+> *[达梦线上实验室。](https://eco.dameng.com/tour/)*  
+> *[Java应用开发指南。](https://eco.dameng.com/document/dm/zh-cn/app-dev/java-jdbc.html)*
 
 ## 1 基本特性
 
@@ -66,7 +67,8 @@ CREATE TABLE employee
 -- 添加表约束
 ALTER TABLE employee MODIFY (hire_date NOT NULL);
 ALTER TABLE employee ADD CONSTRAINT pk_empid PRIMARY KEY (employee_id);
-ALTER TABLE employee ADD CONSTRAINT fk_dept FOREIGN KEY (department_id) REFERENCES department (department_id);
+ALTER TABLE employee ADD CONSTRAINT fk_dept FOREIGN KEY (department_id) 
+  REFERENCES department (department_id);
 
 -- 查看表结构
 DESC employee;
@@ -292,4 +294,32 @@ SELECT * FROM trg_test_log;
 
 ```sql
 -- NA
+```
+
+## 2 Java应用开发指南
+
+### 2.1 测试表
+
+```sql
+-- 创建序列
+CREATE SEQUENCE test_seq
+  START WITH 1 INCREMENT BY 1 NOMAXVALUE
+  CACHE 5 NOCYCLE;
+
+-- 创建测试表
+CREATE TABLE test
+(
+  id INTEGER PRIMARY KEY DEFAULT test_seq.nextval,
+  name VARCHAR(30)
+);
+
+COMMENT ON TABLE test IS '测试表';
+COMMENT ON COLUMN test.id IS '主键ID';
+COMMENT ON COLUMN test.name IS '名称';
+```
+
+### 2.2 Gradle 依赖
+
+```groovy
+implementation "com.dameng:Dm8JdbcDriver18"
 ```
