@@ -298,16 +298,63 @@ SELECT * FROM trg_test_log;
 
 ## 2 应用开发指南
 
-### 2.1 创建测试表
+### 2.1 数据类型
+
+1. 数值类型
+
+- `NUMERIC[PRECISION, SCALE]` 类型： 用于存储零、正负定点数。精度范围1至38。
+- `NUMBER` 类型：与NUMERIC相同。
+- `DECIMAL/DEC` 类型：与NUMERIC相似。
+- `BIT` 类型：用于存储整数数据1、0或null。
+- `INTEGER/INT` 类型：用于存储有符号整数，精度为10。
+- `PLS_INTEGER` 类型：与INTEGER相同。
+- `BIGINT` 类型：用于存储有符号整数，精度为19，标度为0。
+- `TINYINT` 类型：用于存储有符号整数，精度为3，标度为0。取值范围为：-128~+127。
+- `BYTE` 类型：与TINYINT相似，精度为3，标度为0。
+- `SMALLINT` 类型：用于存储有符号整数，精度为5，标度为0。
+- `BINARY` 类型：指定定长二进制数据。
+- `VARBINARY` 类型：指定变长二进制数据。用法类似BINARY数据类型。
+- `REAL` 类型：带二进制的浮点数。
+- `FLOAT` 类型：二进制精度的浮点数，精度最大不超过53。
+- `DOUBLE` 类型：同FLOAT相似，精度最大不超过53。
+- `DOUBLE PRECISION` 类型：该类型指明双精度浮点数，其二进制精度为53，十进制精度为15。
+
+2. 字符类型
+
+- `CHAR/CHARACTER` 类型：定长字符串，最大长度由数据库页面大小决定。
+- `VARCHAR` 类型：可变长字符串，最大长度由数据库页面大小决定。
+
+3. 多媒体类型
+
+- `TEXT/LONGVARCHAR` 类型：变长字符串类型，其字符串的长度最大为2G-1，可用于存储长的文本串。
+- `IMAGE/LONGVARBINARY` 类型：可用于存储多媒体信息中的图像类型。
+- `BLOB` 类型：用于指明变长的字符串，长度最大为2G-1字节。
+- `CLOB` 类型：用于指明变长的字符串，长度最大为2G-1字节。
+- `BFILE` 类型：用于指明存储在操作系统中的二进制文件。
+
+4. 日期类型
+
+- `DATE` 类型：包括年、月、日信息，定义了‘-4712-01-01’和‘9999-12-31’之间任何一个有效的格里高利日期。
+- `TIME` 类型：包括时、分、秒信息。
+- `TIMESTAMP/DATATIME` 类型：包括年、月、日、时、分、秒信息。
+- `TIME WITH TIME ZONE` 类型：描述一个带时区的TIME值。
+- `TIMESTAMP WITH TIME ZONE` 类型：描述一个时区的TIMESTAMP值。
+- `TIMESTAMP WITH LOCAL TIME ZONE` 类型：描述一个本地时区的TIMESTAMP值。
+
+5. 布尔类型
+
+- `BOOL/BOOLEAN` 类型：布尔数据类型TRUE和FALSE。
+
+### 2.2 创建测试表
 
 ```sql
 -- 创建序列
-CREATE SEQUENCE test_seq
+CREATE SEQUENCE user_info_seq
   START WITH 1 INCREMENT BY 1 NOMAXVALUE
   CACHE 5 NOCYCLE;
 
 -- 创建测试表
-CREATE TABLE test
+CREATE TABLE user_info
 (
   id INTEGER PRIMARY KEY DEFAULT test_seq.nextval,
   name VARCHAR(30)
@@ -318,7 +365,7 @@ COMMENT ON COLUMN test.id IS '主键ID';
 COMMENT ON COLUMN test.name IS '名称';
 ```
 
-### 2.2 添加 Gradle 依赖
+### 2.3 添加 Gradle 依赖
 
 ```groovy
 implementation "com.dameng:Dm8JdbcDriver18"
