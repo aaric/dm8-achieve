@@ -3,6 +3,7 @@ package com.sample.dm8;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.sql.*;
@@ -13,6 +14,7 @@ import java.sql.*;
  * @author Aaric, created on 2022-11-21T09:35.
  * @version 0.2.0-SNAPSHOT
  */
+@Disabled
 @Slf4j
 public class Dm8JdbcTests {
 
