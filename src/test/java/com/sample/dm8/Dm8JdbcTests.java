@@ -2,14 +2,10 @@ package com.sample.dm8;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 /**
  * Dm8JdbcTests
@@ -34,20 +30,33 @@ public class Dm8JdbcTests {
 
     @Test
     public void testInsert() throws Exception {
-        String insertSql = "INSERT INTO test (name) VALUES ('test02')";
-        Assertions.assertTrue(state.execute(insertSql));
+//        String insertSql = "INSERT INTO test (name) VALUES ('test02')";
+//        state.execute(insertSql);
+        String insertSql = "INSERT INTO test (name) VALUES (?)";
+        PreparedStatement ps = conn.prepareStatement(insertSql);
+        ps.setString(1, "test03");
+        ps.execute();
     }
 
     @Test
     public void testDelete() throws Exception {
-        String deleteSql = "DELETE FROM test WHERE id = 1";
-        state.execute(deleteSql);
+//        String deleteSql = "DELETE FROM test WHERE id = 1";
+//        state.execute(deleteSql);
+        String deleteSql = "DELETE FROM test WHERE id = ?";
+        PreparedStatement ps = conn.prepareStatement(deleteSql);
+        ps.setInt(1, 3);
+        ps.execute();
     }
 
     @Test
     public void testUpdate() throws Exception {
-        String updateSql = "UPDATE test SET name = 'test00' WHERE id = 2";
-        state.executeUpdate(updateSql);
+//        String updateSql = "UPDATE test SET name = 'test00' WHERE id = 2";
+//        state.executeUpdate(updateSql);
+        String updateSql = "UPDATE test SET name = ? WHERE id = ?";
+        PreparedStatement ps = conn.prepareStatement(updateSql);
+        ps.setString(1, "test11");
+        ps.setInt(2, 2);
+        ps.executeUpdate();
     }
 
     @Test
