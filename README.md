@@ -358,6 +358,7 @@ CREATE TABLE user_info
 (
   id INT PRIMARY KEY DEFAULT test_seq.nextval,
   name VARCHAR(30) NOT NULL,
+  sex TINYINT NOT NULL DEFAULT 0,
   age INT,
   email VARCHAR(100)
 );
@@ -365,6 +366,7 @@ CREATE TABLE user_info
 COMMENT ON TABLE user_info IS '用户表';
 COMMENT ON COLUMN user_info.id IS '主键ID';
 COMMENT ON COLUMN user_info.name IS '姓名';
+COMMENT ON COLUMN user_info.sex IS '性别：0-未知，1-男，2-女';
 COMMENT ON COLUMN user_info.age IS '年龄';
 COMMENT ON COLUMN user_info.email IS '电子邮箱';
 ```

@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author Aaric, created on 2022-11-21T11:39.
  * @version 0.2.0-SNAPSHOT
  */
-@MapperScan("com.sample.dm8.dao.*Mapper")
+@MapperScan("com.sample.dm8.dao")
 @SpringBootApplication
 public class App {
 
