@@ -2,11 +2,12 @@ plugins {
     id "java"
     id "io.freefair.lombok" version "6.5.1"
     id "io.spring.dependency-management" version "1.1.0"
+    id "team.yi.semantic-gitlog" version "0.5.17"
     id "org.springframework.boot" version "2.3.2.RELEASE"
 }
 
 group = "com.sample"
-version = "0.1.0-SNAPSHOT"
+version = "0.2.0-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -33,13 +34,19 @@ dependencies {
 
     implementation fileTree(dir: "lib", includes: ["*.jar"])
 
-    implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation "org.springframework.boot:spring-boot-starter-log4j2"
+    implementation("org.springframework.boot:spring-boot-starter-web") {
+        exclude group: "org.springframework.boot", module: "spring-boot-starter-tomcat"
+    }
+    implementation "org.springframework.boot:spring-boot-starter-undertow"
     implementation "org.springframework.boot:spring-boot-starter-validation"
 
     implementation "com.github.xiaoymin:knife4j-spring-boot-starter"
 
-    implementation "cn.dev33:sa-token-spring-boot-starter"
+    implementation "com.dameng:Dm8JdbcDriver18"
+    implementation "org.springframework.boot:spring-boot-starter-jdbc"
+    implementation "com.baomidou:mybatis-plus-boot-starter"
+
+//    implementation "cn.dev33:sa-token-spring-boot-starter"
 
 //    testImplementation "org.junit.jupiter:junit-jupiter"
 //    testImplementation "org.junit.jupiter:junit-jupiter-params"
@@ -65,6 +72,9 @@ dependencyManagement {
 //        }
 
         dependency "cn.dev33:sa-token-spring-boot-starter:1.32.0"
+
+        dependency "com.dameng:Dm8JdbcDriver18:8.1.1.49"
+        dependency "com.baomidou:mybatis-plus-boot-starter:3.5.2"
     }
 }
 
@@ -80,6 +90,32 @@ compileTestJava {
 
 test {
     useJUnitPlatform()
+}
+
+task checkstyle(type: Checkstyle) {
+    source = "src"
+    include "**/*.java"
+    ignoreFailures false
+}
+//checkstyleMain.exclude("**/proto/**/*.java")
+
+changelog {
+    toRef = "master"
+    isUnstable = true
+
+    jsonFile = file("${project.rootDir}/CHANGELOG.json")
+    fileSets = [
+            {
+                template = file("${project.rootDir}/config/gitlog/CHANGELOG.mustache")
+                target = file("${project.rootDir}/CHANGELOG.md")
+            }
+    ]
+}
+
+derive {
+    toRef = "master"
+    isUnstable = true
+    derivedVersionMark = "NEXT_VERSION:=="
 }
 
 task removeLombokConfig() {
