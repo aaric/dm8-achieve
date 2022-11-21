@@ -27,25 +27,25 @@ public class Dm8SpringJdbcTests {
 
     @Test
     public void testInsert() {
-        String insertSql = "INSERT INTO test (name) VALUES ('test10')";
+        String insertSql = "INSERT INTO user_info (name) VALUES ('test10')";
         jdbcTemplate.execute(insertSql);
     }
 
     @Test
     public void testDelete() {
-        String deleteSql = "DELETE FROM test WHERE name = 'test10'";
+        String deleteSql = "DELETE FROM user_info WHERE name = 'test10'";
         jdbcTemplate.execute(deleteSql);
     }
 
     @Test
     public void testUpdate() {
-        String updateSql = "UPDATE test SET name = ? WHERE id = ?";
+        String updateSql = "UPDATE user_info SET name = ? WHERE id = ?";
         jdbcTemplate.update(updateSql, new Object[]{"test22", 2});
     }
 
     @Test
     public void testQuery() {
-        String querySql = "SELECT * FROM test WHERE name LIKE 'test%'";
+        String querySql = "SELECT * FROM user_info WHERE name LIKE 'test%'";
         List<Map<String, Object>> mapList = jdbcTemplate.queryForList(querySql);
         System.err.println(mapList);
     }

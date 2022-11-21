@@ -356,13 +356,17 @@ CREATE SEQUENCE user_info_seq
 -- 创建测试表
 CREATE TABLE user_info
 (
-  id INTEGER PRIMARY KEY DEFAULT test_seq.nextval,
-  name VARCHAR(30)
+  id INT PRIMARY KEY DEFAULT test_seq.nextval,
+  name VARCHAR(30) NOT NULL,
+  age INT,
+  email VARCHAR(100)
 );
 
-COMMENT ON TABLE test IS '测试表';
-COMMENT ON COLUMN test.id IS '主键ID';
-COMMENT ON COLUMN test.name IS '名称';
+COMMENT ON TABLE user_info IS '用户表';
+COMMENT ON COLUMN user_info.id IS '主键ID';
+COMMENT ON COLUMN user_info.name IS '姓名';
+COMMENT ON COLUMN user_info.age IS '年龄';
+COMMENT ON COLUMN user_info.email IS '电子邮箱';
 ```
 
 ### 2.3 添加 Gradle 依赖

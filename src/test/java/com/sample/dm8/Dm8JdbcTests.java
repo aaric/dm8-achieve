@@ -30,9 +30,9 @@ public class Dm8JdbcTests {
 
     @Test
     public void testInsert() throws Exception {
-//        String insertSql = "INSERT INTO test (name) VALUES ('test02')";
+//        String insertSql = "INSERT INTO user_info (name) VALUES ('test02')";
 //        state.execute(insertSql);
-        String insertSql = "INSERT INTO test (name) VALUES (?)";
+        String insertSql = "INSERT INTO user_info (name) VALUES (?)";
         PreparedStatement ps = conn.prepareStatement(insertSql);
         ps.setString(1, "test03");
         ps.execute();
@@ -40,9 +40,9 @@ public class Dm8JdbcTests {
 
     @Test
     public void testDelete() throws Exception {
-//        String deleteSql = "DELETE FROM test WHERE id = 1";
+//        String deleteSql = "DELETE FROM user_info WHERE id = 1";
 //        state.execute(deleteSql);
-        String deleteSql = "DELETE FROM test WHERE id = ?";
+        String deleteSql = "DELETE FROM user_info WHERE id = ?";
         PreparedStatement ps = conn.prepareStatement(deleteSql);
         ps.setInt(1, 3);
         ps.execute();
@@ -52,7 +52,7 @@ public class Dm8JdbcTests {
     public void testUpdate() throws Exception {
 //        String updateSql = "UPDATE test SET name = 'test00' WHERE id = 2";
 //        state.executeUpdate(updateSql);
-        String updateSql = "UPDATE test SET name = ? WHERE id = ?";
+        String updateSql = "UPDATE user_info SET name = ? WHERE id = ?";
         PreparedStatement ps = conn.prepareStatement(updateSql);
         ps.setString(1, "test11");
         ps.setInt(2, 2);
@@ -61,7 +61,7 @@ public class Dm8JdbcTests {
 
     @Test
     public void testQuery() throws Exception {
-        String querySql = "SELECT * FROM test";
+        String querySql = "SELECT * FROM user_info";
         ResultSet rs = state.executeQuery(querySql);
         while (rs.next()) {
             int id = rs.getInt("id");
