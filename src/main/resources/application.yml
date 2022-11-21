@@ -1,0 +1,57 @@
+# Undertow settings
+server:
+  port: ${SERVER_PORT:8080}
+  undertow:
+    threads:
+      io: ${UNDERTOW_IO_THREADS:1}
+      worker: ${UNDERTOW_WORKER_THREADS:8}
+    buffer-size: ${UNDERTOW_BUFFER_SIZE:1024}
+
+# Management settings
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  health:
+    elasticsearch:
+      response-timeout: 3s
+
+# Logging settings
+logging:
+  level:
+    root: ERROR
+    org:
+      springframework:
+        web: ERROR
+        security: INFO
+        boot: INFO
+      hibernate: INFO
+    com:
+      sample: ${LOGGING_LEVEL_PROJECT:INFO}
+  file:
+    path: ${LOGGING_FILE_PATH:./}
+    name: ${LOGGING_FILE_NAME:output.log}
+    max-size: ${LOGGING_FILE_MAX_SIZE:500MB}
+    max-history: ${LOGGING_FILE_MAX_HISTORY:7}
+    total-size-cap: ${LOGGING_FILE_TOTAL_SIZE:1500MB}
+  pattern:
+    rolling-file-name: "${LOG_FILE}.%d{yyyy-MM-dd}.%i.log"
+
+# Spring settings
+spring:
+  profiles:
+    active: dev
+  application:
+    name: dm8-achieve
+  datasource:
+    driver-class-name: dm.jdbc.driver.DmDriver
+    url: jdbc:dm://localhost:5236
+    username: SYSDBA
+    password: SYSDBA

@@ -296,9 +296,9 @@ SELECT * FROM trg_test_log;
 -- NA
 ```
 
-## 2 Java应用开发指南
+## 2 应用开发指南
 
-### 2.1 测试表
+### 2.1 创建测试表
 
 ```sql
 -- 创建序列
@@ -318,7 +318,7 @@ COMMENT ON COLUMN test.id IS '主键ID';
 COMMENT ON COLUMN test.name IS '名称';
 ```
 
-### 2.2 Gradle 依赖
+### 2.2 添加 Gradle 依赖
 
 ```groovy
 implementation "com.dameng:Dm8JdbcDriver18"
