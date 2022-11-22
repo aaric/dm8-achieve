@@ -1,9 +1,10 @@
 package com.sample.dm8;
 
-import com.sample.dm8.common.SexEnum;
+import com.sample.dm8.core.SexEnum;
 import com.sample.dm8.dao.UserInfoMapper;
 import com.sample.dm8.pojo.UserInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  * @author Aaric, created on 2022-11-21T13:41.
  * @version 0.2.0-SNAPSHOT
  */
+@Disabled
 @Slf4j
 @SpringBootTest
 @ExtendWith(SpringExtension.class)

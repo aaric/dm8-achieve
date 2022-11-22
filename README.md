@@ -293,7 +293,7 @@ SELECT * FROM trg_test_log;
 6. [分区表](https://eco.dameng.com/document/dm/zh-cn/sql-dev/advanced-partitoning.html)
 
 ```sql
--- NA
+  (NA)
 ```
 
 ## 2 应用开发指南

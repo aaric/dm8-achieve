@@ -1,4 +1,4 @@
-package com.sample.dm8.common;
+package com.sample.dm8.core;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 
