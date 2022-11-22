@@ -9,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Dm8TableUtilsTests
@@ -27,9 +29,17 @@ public class Dm8TableFactoryTests {
 
     @Test
     public void testCreateTable() throws Exception {
-        String tbName = "test";
+        List<Dm8DbColumn> columnList = new ArrayList<>();
+        columnList.add(new Dm8DbColumn().setName("id").setDbType(Dm8DbTypeEnum.BIGINT)
+                .setPrecision(null).setScale(null).setIsNull(false)
+                .setIsPrimaryKey(true).setDefaultValue("AUTO"));
+        Dm8DbTable table = new Dm8DbTable()
+                .setName("test")
+                .setComment("测试表")
+                .setColumnList(columnList);
+
         Dm8TableFactory factory = new Dm8TableFactory(dataSource);
-        factory.dropTable(tbName);
-        factory.createTable(tbName);
+        factory.dropTable(table.getName());
+        factory.createTable(table);
     }
 }
