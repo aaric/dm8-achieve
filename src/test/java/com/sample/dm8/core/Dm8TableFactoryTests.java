@@ -26,21 +26,30 @@ public class Dm8TableFactoryTests {
     @Autowired
     private DataSource dataSource;
 
+    private static Dm8DbTable table;
+
+    static {
+        List<Dm8DbColumn> columnList = new ArrayList<>();
+        columnList.add(new Dm8DbColumn().setName("id").setComment("ID").setType("BIGINT")
+                .setPrimaryKey(true).setDefaultValue("AUTO"));
+        columnList.add(new Dm8DbColumn().setName("name").setComment("名称").setType("VARCHAR").setTypeLen("30"));
+        columnList.add(new Dm8DbColumn().setName("age").setComment("年龄").setType("INT"));
+        columnList.add(new Dm8DbColumn().setName("email").setComment("电子邮箱").setType("VARCHAR").setTypeLen("100"));
+        table = new Dm8DbTable()
+                .setName("user_info")
+                .setComment("用户表")
+                .setColumnList(columnList);
+    }
+
     @Test
     public void testCreateTable() throws Exception {
-        List<Dm8DbColumn> columnList = new ArrayList<>();
-        columnList.add(new Dm8DbColumn().setName("id").setType("BIGINT")
-                .setPrimaryKey(true).setDefaultValue("AUTO"));
-        columnList.add(new Dm8DbColumn().setName("name").setType("VARCHAR").setTypeLen("30"));
-        columnList.add(new Dm8DbColumn().setName("age").setType("INT"));
-        columnList.add(new Dm8DbColumn().setName("email").setType("VARCHAR").setTypeLen("100"));
-        Dm8DbTable table = new Dm8DbTable()
-                .setName("test")
-                .setComment("测试表")
-                .setColumnList(columnList);
-
         Dm8TableFactory factory = new Dm8TableFactory(dataSource);
         factory.dropTable(table.getName());
         factory.createTable(table);
+    }
+
+    @Test
+    public void testInsert() throws Exception {
+
     }
 }

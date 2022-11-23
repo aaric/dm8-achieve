@@ -71,6 +71,8 @@ ALTER TABLE employee ADD CONSTRAINT fk_dept FOREIGN KEY (department_id)
   REFERENCES department (department_id);
 
 -- 查看表结构
+-- SELECT * FROM user_tables WHERE table_name = upper('employee');
+-- SELECT * FROM all_tab_columns WHERE table_name = upper('employee');
 DESC employee;
 
 -- 查看表主键外键
@@ -183,6 +185,9 @@ ROLLBACK TO my_insert;
 CREATE SEQUENCE seq1
   START WITH 1 INCREMENT BY 1 MAXVALUE 10000
   CACHE 5 NOCYCLE;
+  
+-- 查看序列
+SELECT * FROM user_sequences WHERE sequence_name = upper('seq1');
 
 -- 查询下一个序列号
 SELECT seq1.nextval() FROM dual;

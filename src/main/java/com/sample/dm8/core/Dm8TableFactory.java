@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -34,16 +35,20 @@ public class Dm8TableFactory {
         Connection conn = dataSource.getConnection();
         Statement state = conn.createStatement();
 
-        try {
+        ResultSet rs = state.executeQuery(String.format("SELECT count(1) FROM user_tables WHERE table_name = '%s'",
+                StringUtils.upperCase(tbName)));
+        if (rs.next() && 0 < rs.getInt(1)) {
             state.executeUpdate("DROP TABLE " + tbName);
-        } catch (SQLException e) {
-            log.error("no table: " + tbName, e);
+        } else {
+            log.error("no table: " + tbName);
         }
 
-        try {
+        rs = state.executeQuery(String.format("SELECT count(1) FROM user_sequences WHERE sequence_name = '%s'",
+                StringUtils.upperCase(getTableSeqName(tbName))));
+        if (rs.next() && 0 < rs.getInt(1)) {
             state.executeUpdate("DROP SEQUENCE " + getTableSeqName(tbName));
-        } catch (SQLException e) {
-            log.error("no sequence: " + getTableSeqName(tbName), e);
+        } else {
+            log.error("no sequence: " + getTableSeqName(tbName));
         }
 
         conn.close();
@@ -67,6 +72,7 @@ public class Dm8TableFactory {
 
         log.info("创建表：{}", dbTable.getName());
         try {
+            // 创建序列
             String tbSeqSql = "CREATE SEQUENCE "
                     + getTableSeqName(dbTable.getName()) + " "
                     + "START WITH 1 INCREMENT BY 1 NOMAXVALUE "
@@ -74,8 +80,8 @@ public class Dm8TableFactory {
             log.info("创建序列SQL: {}", tbSeqSql);
             state.executeUpdate(tbSeqSql);
 
+            // 创建表
             String tbSql = "CREATE TABLE " + dbTable.getName() + " ( ";
-
             for (Dm8DbColumn col : dbTable.getColumnList()) {
                 tbSql += String.format("%s ", col.getName());
                 tbSql += String.format("%s%s ", col.getType(), getColumnTypeScope(col.getTypeLen()));
@@ -91,11 +97,18 @@ public class Dm8TableFactory {
                 }
                 tbSql += ", ";
             }
-
             tbSql = tbSql.replaceAll(",\\s$", " ");
             tbSql += ")";
             log.info("创建表SQL：{}", tbSql);
             state.executeUpdate(tbSql);
+
+            // 添加表注释
+            state.executeUpdate(String.format("COMMENT ON TABLE %s IS '%s'",
+                    dbTable.getName(), dbTable.getComment()));
+            for (Dm8DbColumn col : dbTable.getColumnList()) {
+                state.executeUpdate(String.format("COMMENT ON COLUMN %s.%s IS '%s'",
+                        dbTable.getName(), col.getName(), col.getComment()));
+            }
         } catch (SQLException e) {
             log.error("create table exception", e);
         } finally {
