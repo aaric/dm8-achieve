@@ -157,7 +157,6 @@ public class Dm8TableFactory {
 
         List<String> keyList = new ArrayList<>();
         List<Object> valueList = new ArrayList<>();
-
         table.getColumnList().forEach(col -> {
             String k = col.getName();
             Object v = dataMap.get(k);
@@ -206,6 +205,7 @@ public class Dm8TableFactory {
             Connection conn = dataSource.getConnection();
             try {
                 String deleteSql = String.format("DELETE FROM %s WHERE %s = %d", table.getName(), pkName, id);
+                log.info("delete sql: {}", deleteSql);
 
                 Statement state = conn.createStatement();
                 return 0 < state.executeUpdate(deleteSql);
@@ -215,5 +215,47 @@ public class Dm8TableFactory {
 
         }
         return false;
+    }
+
+
+    /**
+     * 更新对象
+     *
+     * @param table   表定义
+     * @param dataMap 数据集合
+     * @return
+     * @throws SQLException
+     */
+    public boolean updateObject(Dm8DbTable table, Map<String, Object> dataMap) throws SQLException {
+        if (null == dataMap && 0 == dataMap.size()) {
+            throw new IllegalArgumentException("invalid data map");
+        }
+        log.info("data map: {}", dataMap);
+
+        String pkName = table.getPrimaryKeyName();
+        List<String> keyValueList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(pkName)) {
+            table.getColumnList().forEach(col -> {
+                String k = col.getName();
+                if (dataMap.keySet().contains(k) && !StringUtils.equals(pkName, k)) {
+                    Object v = dataMap.get(k);
+                    keyValueList.add(String.format("%s = %s", k, v instanceof String ? String.format("'%s'", v) : v));
+                }
+            });
+        }
+
+        Connection conn = dataSource.getConnection();
+        try {
+            String updateSql = String.format("UPDATE %s SET %s WHERE %s = %d",
+                    table.getName(), StringUtils.join(keyValueList, ", "),
+                    pkName, dataMap.get(pkName));
+            log.info("update sql: {}", updateSql);
+
+            Statement state = conn.createStatement();
+            return 0 < state.executeUpdate(updateSql);
+
+        } finally {
+            conn.close();
+        }
     }
 }
