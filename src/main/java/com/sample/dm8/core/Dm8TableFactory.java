@@ -37,7 +37,7 @@ public class Dm8TableFactory {
 
         try (ResultSet rs = state.executeQuery(String.format("SELECT count(1) FROM user_tables WHERE table_name = '%s'",
                 StringUtils.upperCase(tbName)))) {
-            if (rs.next() && 0 < rs.getInt(1)) {
+            if (rs.next() && 0 < rs.getInt(Dm8DbColumn.FIRST)) {
                 String tbSeqSql = String.format("DROP TABLE %s", tbName);
                 log.info("drop sequence sql: {}", tbSeqSql);
                 state.executeUpdate(tbSeqSql);
@@ -48,7 +48,7 @@ public class Dm8TableFactory {
 
         try (ResultSet rs = state.executeQuery(String.format("SELECT count(1) FROM user_sequences WHERE sequence_name = '%s'",
                 StringUtils.upperCase(getTableSeqName(tbName))))) {
-            if (rs.next() && 0 < rs.getInt(1)) {
+            if (rs.next() && 0 < rs.getInt(Dm8DbColumn.FIRST)) {
                 String tbSql = String.format("DROP SEQUENCE %s", getTableSeqName(tbName));
                 log.info("drop table sql: {}", tbSql);
                 state.executeUpdate(tbSql);
@@ -182,7 +182,7 @@ public class Dm8TableFactory {
             if (StringUtils.isNotEmpty(pkName)) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
-                        dataMap.put(pkName, rs.getLong(1));
+                        dataMap.put(pkName, rs.getLong(Dm8DbColumn.FIRST));
                     }
                 }
             }
