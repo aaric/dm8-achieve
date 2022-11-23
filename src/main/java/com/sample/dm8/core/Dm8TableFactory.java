@@ -57,7 +57,7 @@ public class Dm8TableFactory {
      * @throws Exception
      */
     public void createTable(Dm8DbTable dbTable) throws Exception {
-        if (null == dbTable || StringUtils.isNotEmpty(dbTable.getName())
+        if (null == dbTable || StringUtils.isEmpty(dbTable.getName())
                 || null == dbTable.getColumnList() || 0 == dbTable.getColumnList().size()) {
             throw new IllegalArgumentException("无效表定义");
         }
@@ -65,50 +65,36 @@ public class Dm8TableFactory {
         Connection conn = dataSource.getConnection();
         Statement state = conn.createStatement();
 
-        log.info("创建表: {}", dbTable.getName());
+        log.info("创建表：{}", dbTable.getName());
         try {
             String tbSeqSql = "CREATE SEQUENCE "
                     + getTableSeqName(dbTable.getName()) + " "
                     + "START WITH 1 INCREMENT BY 1 NOMAXVALUE "
                     + "CACHE 5 NOCYCLE";
-            log.info("创建表SQL: {}", tbSeqSql);
+            log.info("创建序列SQL: {}", tbSeqSql);
             state.executeUpdate(tbSeqSql);
 
             String tbSql = "CREATE TABLE " + dbTable.getName() + " ( ";
 
             for (Dm8DbColumn col : dbTable.getColumnList()) {
                 tbSql += String.format("%s ", col.getName());
-                tbSql += String.format("%s %s ", col.getDbType(), getColumnTypeScope(col.getPrecision(), col.getScale()));
-                if (null != col.getIsNull() && col.getIsNull()) {
-                    tbSql += "NOT NULL ";
-                }
-                if (null != col.getIsPrimaryKey() && col.getIsPrimaryKey()) {
+                tbSql += String.format("%s%s ", col.getType(), getColumnTypeScope(col.getTypeLen()));
+                if (col.isPrimaryKey()) {
                     tbSql += "PRIMARY KEY ";
-                }
-                if (null != col.getIsUnique() && col.getIsUnique()) {
-                    tbSql += "UNIQUE ";
                 }
                 if (StringUtils.isNotEmpty(col.getDefaultValue())) {
                     if (StringUtils.equals("AUTO", col.getDefaultValue())) {
                         tbSql += String.format("DEFAULT %s.nextval ", getTableSeqName(dbTable.getName()));
                     } else {
-                        tbSql += String.format("DEFAULT %s ", col.getDefaultValue());
+                        tbSql += String.format("NOT NULL DEFAULT %s ", col.getDefaultValue());
                     }
                 }
                 tbSql += ", ";
             }
-            if (autoInc) {
-                tbSql += "id BIGINT PRIMARY KEY DEFAULT " + getTableSeqName(dbTable.getName()) + ".nextval, ";
-            } else {
-                tbSql += "id BIGINT PRIMARY KEY, ";
-            }
-
-            tbSql += "name VARCHAR(30) NOT NULL, ";
-            tbSql += "age INT, ";
 
             tbSql = tbSql.replaceAll(",\\s$", " ");
             tbSql += ")";
-            log.info("tbSql: {}", tbSql);
+            log.info("创建表SQL：{}", tbSql);
             state.executeUpdate(tbSql);
         } catch (SQLException e) {
             log.error("create table exception", e);
@@ -128,19 +114,15 @@ public class Dm8TableFactory {
     }
 
     /**
-     * 列类型范围
+     * 数据长度（精度或标度）
      *
-     * @param precision 精度或长度
-     * @param scale     标度
+     * @param length 数据长度（精度或标度）
      * @return
      */
-    public static String getColumnTypeScope(Integer precision, Integer scale) {
+    public static String getColumnTypeScope(String length) {
         String scope = "";
-        if (null != precision) {
-            scope = String.format(" (%d) ", precision);
-        }
-        if (null != precision && null != scale) {
-            scope = String.format(" (%d, %d) ", precision, scale);
+        if (StringUtils.isNotEmpty(length)) {
+            scope = String.format("(%s) ", length);
         }
         return scope;
     }

@@ -1,7 +1,6 @@
 package com.sample.dm8.core;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import java.util.List;
  * @author Aaric, created on 2022-11-22T10:30.
  * @version 0.3.0-SNAPSHOT
  */
-@Disabled
+//@Disabled
 @Slf4j
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -30,9 +29,11 @@ public class Dm8TableFactoryTests {
     @Test
     public void testCreateTable() throws Exception {
         List<Dm8DbColumn> columnList = new ArrayList<>();
-        columnList.add(new Dm8DbColumn().setName("id").setDbType(Dm8DbTypeEnum.BIGINT)
-                .setPrecision(null).setScale(null).setIsNull(false)
-                .setIsPrimaryKey(true).setDefaultValue("AUTO"));
+        columnList.add(new Dm8DbColumn().setName("id").setType("BIGINT")
+                .setPrimaryKey(true).setDefaultValue("AUTO"));
+        columnList.add(new Dm8DbColumn().setName("name").setType("VARCHAR").setTypeLen("30"));
+        columnList.add(new Dm8DbColumn().setName("age").setType("INT"));
+        columnList.add(new Dm8DbColumn().setName("email").setType("VARCHAR").setTypeLen("100"));
         Dm8DbTable table = new Dm8DbTable()
                 .setName("test")
                 .setComment("测试表")
