@@ -3,7 +3,7 @@ package com.sample.dm8.core;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import java.util.Map;
  * @author Aaric, created on 2022-11-22T10:30.
  * @version 0.3.0-SNAPSHOT
  */
-//@Disabled
+@Disabled
 @Slf4j
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -55,23 +55,14 @@ public class Dm8TableFactoryTests {
     }
 
     @Test
-    public void testInsert() throws Exception {
-        String dataJson = "{\"name\":\"zhangshan\",\"age\":28,\"salary\":8000.0}";
+    public void testInsertObject() throws Exception {
+        String dataJson = "{\"name\":\"zhangshan\",\"age\": 28,\"salary\":8000.0,\"remark\":\"todo\"}";
         Map<String, Object> dataMap = objectMapper.readValue(dataJson,
                 new TypeReference<Map<String, Object>>() {
                 });
-        List<String> keyList = new ArrayList<>();
-        List<Object> valueList = new ArrayList<>();
-        dataMap.forEach((k, v) -> {
-            if (null != v) {
-                keyList.add(k);
-                valueList.add(v instanceof String ? String.format("'%s'", v) : v);
-            }
-        });
 
-
-        String insertSql = String.format("INSERT INTO user_info (%s) VALUES (%s)",
-                StringUtils.join(keyList, ", "), StringUtils.join(valueList, ", "));
-        System.err.println(insertSql);
+        Dm8TableFactory factory = new Dm8TableFactory(dataSource);
+        factory.insertObject(table, dataMap);
+        System.err.println(dataMap);
     }
 }

@@ -34,4 +34,20 @@ public class Dm8DbTable {
      * 数据列清单
      */
     private List<Dm8DbColumn> columnList;
+
+    /**
+     * 获取主键ID名称
+     *
+     * @return
+     */
+    public String getPrimaryKeyName() {
+        if (null != columnList && 0 != columnList.size()) {
+            for (Dm8DbColumn col : columnList) {
+                if (col.isPrimaryKey() && Dm8DbColumn.AUTO.equals(col.getDefaultValue())) {
+                    return col.getName();
+                }
+            }
+        }
+        return null;
+    }
 }
