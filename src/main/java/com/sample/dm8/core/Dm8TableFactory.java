@@ -35,29 +35,31 @@ public class Dm8TableFactory {
         Connection conn = dataSource.getConnection();
         Statement state = conn.createStatement();
 
-        try (ResultSet rs = state.executeQuery(String.format("SELECT count(1) FROM user_tables WHERE table_name = '%s'",
-                StringUtils.upperCase(tbName)))) {
-            if (rs.next() && 0 < rs.getInt(Dm8DbColumn.FIRST)) {
-                String tbSeqSql = String.format("DROP TABLE %s", tbName);
-                log.info("drop sequence sql: {}", tbSeqSql);
-                state.executeUpdate(tbSeqSql);
-            } else {
-                log.error("no table: {}", tbName);
+        try {
+            // 删除表
+            try (ResultSet rs = state.executeQuery(String.format("SELECT count(1) FROM user_tables WHERE table_name = '%s'", StringUtils.upperCase(tbName)))) {
+                if (rs.next() && 0 < rs.getInt(Dm8DbColumn.FIRST)) {
+                    String tbSeqSql = String.format("DROP TABLE %s", tbName);
+                    log.info("drop sequence sql: {}", tbSeqSql);
+                    state.executeUpdate(tbSeqSql);
+                } else {
+                    log.error("no table: {}", tbName);
+                }
             }
-        }
 
-        try (ResultSet rs = state.executeQuery(String.format("SELECT count(1) FROM user_sequences WHERE sequence_name = '%s'",
-                StringUtils.upperCase(getTableSeqName(tbName))))) {
-            if (rs.next() && 0 < rs.getInt(Dm8DbColumn.FIRST)) {
-                String tbSql = String.format("DROP SEQUENCE %s", getTableSeqName(tbName));
-                log.info("drop table sql: {}", tbSql);
-                state.executeUpdate(tbSql);
-            } else {
-                log.error("no sequence: {}", getTableSeqName(tbName));
+            // 删除序列
+            try (ResultSet rs = state.executeQuery(String.format("SELECT count(1) FROM user_sequences WHERE sequence_name = '%s'", StringUtils.upperCase(getTableSeqName(tbName))))) {
+                if (rs.next() && 0 < rs.getInt(Dm8DbColumn.FIRST)) {
+                    String tbSql = String.format("DROP SEQUENCE %s", getTableSeqName(tbName));
+                    log.info("drop table sql: {}", tbSql);
+                    state.executeUpdate(tbSql);
+                } else {
+                    log.error("no sequence: {}", getTableSeqName(tbName));
+                }
             }
+        } finally {
+            conn.close();
         }
-
-        conn.close();
     }
 
     /**
@@ -92,8 +94,7 @@ public class Dm8TableFactory {
      * @throws Exception
      */
     public void createTable(Dm8DbTable dbTable) throws Exception {
-        if (null == dbTable || StringUtils.isEmpty(dbTable.getName())
-                || null == dbTable.getColumnList() || 0 == dbTable.getColumnList().size()) {
+        if (null == dbTable || StringUtils.isEmpty(dbTable.getName()) || null == dbTable.getColumnList() || 0 == dbTable.getColumnList().size()) {
             throw new IllegalArgumentException("invalid table definition");
         }
 
@@ -103,10 +104,7 @@ public class Dm8TableFactory {
         log.info("create table: {}", dbTable.getName());
         try {
             // 创建序列
-            String tbSeqSql = "CREATE SEQUENCE "
-                    + getTableSeqName(dbTable.getName()) + " "
-                    + "START WITH 1 INCREMENT BY 1 NOMAXVALUE "
-                    + "CACHE 5 NOCYCLE";
+            String tbSeqSql = "CREATE SEQUENCE " + getTableSeqName(dbTable.getName()) + " " + "START WITH 1 INCREMENT BY 1 NOMAXVALUE " + "CACHE 5 NOCYCLE";
             log.info("create sequence sql: {}", tbSeqSql);
             state.executeUpdate(tbSeqSql);
 
@@ -133,11 +131,9 @@ public class Dm8TableFactory {
             state.executeUpdate(tbSql);
 
             // 添加表注释
-            state.executeUpdate(String.format("COMMENT ON TABLE %s IS '%s'",
-                    dbTable.getName(), dbTable.getComment()));
+            state.executeUpdate(String.format("COMMENT ON TABLE %s IS '%s'", dbTable.getName(), dbTable.getComment()));
             for (Dm8DbColumn col : dbTable.getColumnList()) {
-                state.executeUpdate(String.format("COMMENT ON COLUMN %s.%s IS '%s'",
-                        dbTable.getName(), col.getName(), col.getComment()));
+                state.executeUpdate(String.format("COMMENT ON COLUMN %s.%s IS '%s'", dbTable.getName(), col.getName(), col.getComment()));
             }
         } catch (SQLException e) {
             log.error("create table exception", e);
@@ -147,7 +143,7 @@ public class Dm8TableFactory {
     }
 
     /**
-     * 新增数据
+     * 新增对象
      *
      * @param table   表定义
      * @param dataMap 数据集合
@@ -171,24 +167,53 @@ public class Dm8TableFactory {
             }
         });
 
-        String insertSql = String.format("INSERT INTO %s (%s) VALUES (%s)", table.getName(),
-                StringUtils.join(keyList, ", "), StringUtils.join(valueList, ", "));
-        log.info("insert sql: {}", insertSql);
-
         Connection conn = dataSource.getConnection();
-        PreparedStatement ps = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-        if (0 < ps.executeUpdate()) {
-            String pkName = table.getPrimaryKeyName();
-            if (StringUtils.isNotEmpty(pkName)) {
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        dataMap.put(pkName, rs.getLong(Dm8DbColumn.FIRST));
+        try {
+            String insertSql = String.format("INSERT INTO %s (%s) VALUES (%s)", table.getName(), StringUtils.join(keyList, ", "), StringUtils.join(valueList, ", "));
+            log.info("insert sql: {}", insertSql);
+
+            PreparedStatement ps = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+            if (0 < ps.executeUpdate()) {
+                String pkName = table.getPrimaryKeyName();
+                if (StringUtils.isNotEmpty(pkName)) {
+                    try (ResultSet rs = ps.getGeneratedKeys()) {
+                        if (rs.next()) {
+                            dataMap.put(pkName, rs.getLong(Dm8DbColumn.FIRST));
+                        }
                     }
                 }
+                return dataMap;
             }
-            return dataMap;
+
+        } finally {
+            conn.close();
         }
 
         return null;
+    }
+
+    /**
+     * 删除对象
+     *
+     * @param table 表定义
+     * @param id    主键ID
+     * @return
+     * @throws SQLException
+     */
+    public boolean deleteObject(Dm8DbTable table, Long id) throws SQLException {
+        String pkName = table.getPrimaryKeyName();
+        if (StringUtils.isNotEmpty(pkName)) {
+            Connection conn = dataSource.getConnection();
+            try {
+                String deleteSql = String.format("DELETE FROM %s WHERE %s = %d", table.getName(), pkName, id);
+
+                Statement state = conn.createStatement();
+                return 0 < state.executeUpdate(deleteSql);
+            } finally {
+                conn.close();
+            }
+
+        }
+        return false;
     }
 }

@@ -65,4 +65,10 @@ public class Dm8TableFactoryTests {
         factory.insertObject(table, dataMap);
         System.err.println(dataMap);
     }
+
+    @Test
+    public void testDeleteObject() throws Exception {
+        Dm8TableFactory factory = new Dm8TableFactory(dataSource);
+        factory.deleteObject(table, 2L);
+    }
 }
