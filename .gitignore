@@ -3,6 +3,7 @@
 build/
 *.iml
 *.log
+*.log.*
 *.log.gz
 *.log.*.gz
 application-*.yml

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.sample"
-version = "0.2.0-SNAPSHOT"
+version = "0.3.0-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -45,9 +45,11 @@ dependencies {
     implementation "com.dameng:Dm8JdbcDriver18"
     implementation "org.springframework.boot:spring-boot-starter-jdbc"
     implementation "com.baomidou:mybatis-plus-boot-starter"
+//    implementation "org.apache.shardingsphere:shardingsphere-jdbc-core-spring-boot-starter"
 
 //    implementation "cn.dev33:sa-token-spring-boot-starter"
 
+    testImplementation "org.slf4j:slf4j-simple"
 //    testImplementation "org.junit.jupiter:junit-jupiter"
 //    testImplementation "org.junit.jupiter:junit-jupiter-params"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
@@ -63,6 +65,7 @@ dependencyManagement {
     dependencies {
         dependencySet(group: "org.slf4j", version: "1.7.36") {
             entry "slf4j-api"
+            entry "slf4j-nop"
             entry "slf4j-simple"
         }
 
@@ -75,6 +78,7 @@ dependencyManagement {
 
         dependency "com.dameng:Dm8JdbcDriver18:8.1.1.49"
         dependency "com.baomidou:mybatis-plus-boot-starter:3.5.2"
+        dependency "org.apache.shardingsphere:shardingsphere-jdbc-core-spring-boot-starter:5.2.1"
     }
 }
 

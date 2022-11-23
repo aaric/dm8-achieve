@@ -30,6 +30,13 @@ public class Dm8JdbcTests {
         state = conn.createStatement();
     }
 
+    @AfterAll
+    public static void tearDown() throws Exception {
+        if (null != conn) {
+            conn.close();
+        }
+    }
+
     @Test
     public void testInsert() throws Exception {
 //        String insertSql = "INSERT INTO user_info (name) VALUES ('test02')";
@@ -69,13 +76,6 @@ public class Dm8JdbcTests {
             int id = rs.getInt("id");
             String name = rs.getString("name");
             System.err.println(String.format("%d: %s", id, name));
-        }
-    }
-
-    @AfterAll
-    public static void tearDown() throws Exception {
-        if (null != conn) {
-            conn.close();
         }
     }
 }

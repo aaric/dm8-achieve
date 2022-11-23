@@ -1,7 +1,7 @@
 package com.sample.dm8.pojo;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.sample.dm8.common.SexEnum;
+import com.sample.dm8.core.SexEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

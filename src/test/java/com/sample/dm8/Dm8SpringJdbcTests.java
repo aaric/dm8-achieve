@@ -1,6 +1,7 @@
 package com.sample.dm8;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.util.Map;
  * @author Aaric, created on 2022-11-21T11:49.
  * @version 0.2.0-SNAPSHOT
  */
+@Disabled
 @Slf4j
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
