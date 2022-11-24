@@ -1,6 +1,8 @@
 package com.sample.dm8;
 
-import com.sample.dm8.core.SexEnum;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sample.dm8.dao.UserInfoMapper;
 import com.sample.dm8.pojo.UserInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +33,8 @@ public class Dm8MyBatisPlusTests {
         String defaultName = "test01";
         UserInfo userInfo = new UserInfo()
                 .setName(defaultName)
-                .setSex(SexEnum.MALE)
+                //.setSex(SexEnum.MALE)
+                .setSex(1)
                 .setAge(24)
                 .setEmail(defaultName + "@163.com");
         userInfoMapper.insert(userInfo);
@@ -39,6 +42,15 @@ public class Dm8MyBatisPlusTests {
 
     @Test
     public void testSelectMaxAge() {
-        System.err.println(userInfoMapper.selectMaxAge());
+        log.info("{}", userInfoMapper.selectMaxAge());
+
+    }
+
+    @Test
+    public void testSelectPage() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByAsc("id");
+        IPage<UserInfo> page = userInfoMapper.selectPage(new Page<>(1, 2), queryWrapper);
+        log.info("{}", page.getRecords());
     }
 }

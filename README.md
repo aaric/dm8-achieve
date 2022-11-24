@@ -361,7 +361,7 @@ CREATE SEQUENCE user_info_seq
 -- 创建测试表
 CREATE TABLE user_info
 (
-  id INT PRIMARY KEY DEFAULT test_seq.nextval,
+  id INT PRIMARY KEY DEFAULT user_info_seq.nextval,
   name VARCHAR(30) NOT NULL,
   sex TINYINT NOT NULL DEFAULT 0,
   age INT,
@@ -374,6 +374,16 @@ COMMENT ON COLUMN user_info.name IS '姓名';
 COMMENT ON COLUMN user_info.sex IS '性别：0-未知，1-男，2-女';
 COMMENT ON COLUMN user_info.age IS '年龄';
 COMMENT ON COLUMN user_info.email IS '电子邮箱';
+
+-- 测试数据
+INSERT INTO user_info (name, sex, age, email) VALUES ('zhangsan', 1, 25, 'zhangsan@163.com');
+INSERT INTO user_info (name, sex, age, email) VALUES ('lisi', 2, 28, 'lisi@163.com');
+INSERT INTO user_info (name, sex, age, email) VALUES ('wangwu', 2, 27, 'wangwu@163.com');
+INSERT INTO user_info (name, sex, age, email) VALUES ('zhaoliu', 1, 35, 'zhaoliu@163.com');
+INSERT INTO user_info (name, sex, age, email) VALUES ('tianqi', 1, 25, 'tianqi@163.com');
+
+-- 查询数据
+SELECT * FROM user_info;
 ```
 
 ### 2.3 添加 Gradle 依赖

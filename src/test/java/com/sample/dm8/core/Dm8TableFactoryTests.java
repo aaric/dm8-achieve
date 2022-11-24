@@ -2,7 +2,9 @@ package com.sample.dm8.core;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sample.dm8.dao.DynamicTableMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ public class Dm8TableFactoryTests {
 
     private static Dm8DbTable table;
 
+    @Autowired
+    private DynamicTableMapper dynamicTableMapper;
+
     static {
         List<Dm8DbColumn> columnList = new ArrayList<>();
         columnList.add(new Dm8DbColumn().setName("id").setComment("ID").setType("BIGINT")
@@ -41,8 +46,8 @@ public class Dm8TableFactoryTests {
         columnList.add(new Dm8DbColumn().setName("age").setComment("年龄").setType("INT"));
         columnList.add(new Dm8DbColumn().setName("salary").setComment("薪水").setType("DOUBLE").setTypeLen("100"));
         table = new Dm8DbTable()
-                .setName("user_info")
-                .setComment("用户表")
+                .setName("test_info")
+                .setComment("测试表")
                 .setColumnList(columnList);
     }
 
@@ -55,29 +60,43 @@ public class Dm8TableFactoryTests {
 
     @Test
     public void testInsertObject() throws Exception {
-        String dataJson = "{\"name\":\"zhangshan\",\"age\": 28,\"salary\":8000.0,\"remark\":\"todo\"}";
-        Map<String, Object> dataMap = objectMapper.readValue(dataJson,
-                new TypeReference<Map<String, Object>>() {
-                });
+        for (int i = 0; i < 50; i++) {
+            int j = RandomUtils.nextInt(1, 10);
+            String dataJson = "{\"name\":\"test"
+                    + (i + 1)
+                    + "\",\"age\":"
+                    + (25 + j)
+                    + ",\"salary\":"
+                    + (j + 5)
+                    + "000.0,\"remark\":\"todo\"}";
+            Map<String, Object> dataMap = objectMapper.readValue(dataJson,
+                    new TypeReference<Map<String, Object>>() {
+                    });
 
-        Dm8TableFactory factory = new Dm8TableFactory(dataSource);
-        factory.insertObject(table, dataMap);
-        System.err.println(dataMap);
+            Dm8TableFactory factory = new Dm8TableFactory(dataSource);
+            factory.insertObject(table, dataMap);
+            System.err.println(dataMap);
+        }
     }
 
     @Test
     public void testDeleteObject() throws Exception {
         Dm8TableFactory factory = new Dm8TableFactory(dataSource);
-        factory.deleteObject(table, 2L);
+        factory.deleteObject(table, 1L);
     }
 
     @Test
     public void testUpdateObject() throws Exception {
-        String dataJson = "{\"id\":1,\"name\":\"wangwu\",\"age\": 35}";
+        String dataJson = "{\"id\":2,\"name\":\"lisi\",\"age\": 35}";
         Map<String, Object> dataMap = objectMapper.readValue(dataJson,
                 new TypeReference<Map<String, Object>>() {
                 });
         Dm8TableFactory factory = new Dm8TableFactory(dataSource);
         factory.updateObject(table, dataMap);
+    }
+
+    @Test
+    public void testListAll() throws Exception {
+        System.err.println(dynamicTableMapper);
     }
 }

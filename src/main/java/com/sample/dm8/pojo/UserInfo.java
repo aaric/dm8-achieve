@@ -1,7 +1,6 @@
 package com.sample.dm8.pojo;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.sample.dm8.core.SexEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -22,7 +21,8 @@ public class UserInfo {
     @TableField("name")
     private String name;
 
-    private SexEnum sex;
+    //private SexEnum sex;
+    private Integer sex;
 
     @OrderBy
     private Integer age;
