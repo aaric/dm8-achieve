@@ -152,6 +152,6 @@ public class Dm8DynamicTableTests {
 
     @Test
     public void testSelectMaxAge() {
-        System.err.println(dynamicTableMapper.selectMaxAge(table.getName()));
+        log.info("{}", dynamicTableMapper.selectMaxAge(table.getName()));
     }
 }
