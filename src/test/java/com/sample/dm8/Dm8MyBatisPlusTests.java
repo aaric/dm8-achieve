@@ -51,6 +51,7 @@ public class Dm8MyBatisPlusTests {
         QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByAsc("id");
         IPage<UserInfo> page = userInfoMapper.selectPage(new Page<>(1, 2), queryWrapper);
+        log.info("{}", page.getTotal());
         log.info("{}", page.getRecords());
     }
 }

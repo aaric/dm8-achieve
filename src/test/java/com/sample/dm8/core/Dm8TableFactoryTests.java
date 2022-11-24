@@ -1,10 +1,15 @@
 package com.sample.dm8.core;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sample.dm8.config.mybatis.DynamicTableNameHandler;
 import com.sample.dm8.dao.DynamicTableMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +27,7 @@ import java.util.Map;
  * @author Aaric, created on 2022-11-22T10:30.
  * @version 0.3.0-SNAPSHOT
  */
-//@Disabled
+@Disabled
 @Slf4j
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -55,7 +60,7 @@ public class Dm8TableFactoryTests {
     public void testCreateTable() throws Exception {
         Dm8TableFactory factory = new Dm8TableFactory(dataSource);
         factory.dropTable(table.getName());
-        factory.createTable(table);
+//        factory.createTable(table);
     }
 
     @Test
@@ -96,7 +101,20 @@ public class Dm8TableFactoryTests {
     }
 
     @Test
-    public void testListAll() throws Exception {
-        System.err.println(dynamicTableMapper);
+    public void testQueryList() {
+        DynamicTableNameHandler.setTableName("test_info");
+        QueryWrapper<Map<String, Object>> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("id", "name");
+        log.info("{}", dynamicTableMapper.selectList(queryWrapper));
+    }
+
+    @Test
+    public void testQueryPage() {
+        DynamicTableNameHandler.setTableName("test_info");
+        QueryWrapper<Map<String, Object>> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("id", "name");
+        IPage<Map<String, Object>> page = dynamicTableMapper.selectPage(new Page<>(1, 2), queryWrapper);
+        log.info("{}", page.getTotal());
+        log.info("{}", page.getRecords());
     }
 }
