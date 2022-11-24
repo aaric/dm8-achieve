@@ -1,6 +1,7 @@
 package com.sample.dm8.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Map;
 
@@ -11,4 +12,6 @@ import java.util.Map;
  * @version 0.4.0-SNAPSHOT
  */
 public interface DynamicTableMapper extends BaseMapper<Map<String, Object>> {
+
+    Integer selectMaxAge(@Param("tbName") String tbName);
 }
