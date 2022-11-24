@@ -14,10 +14,19 @@ import lombok.experimental.Accessors;
 public class Dm8DbColumn {
 
     /**
+     * 主键自增标识
+     */
+    public static final String AUTO = "AUTO";
+
+    /**
+     * 数据库第一列
+     */
+    public static final int FIRST = 1;
+
+    /**
      * ID
      */
     private Long id;
-
 
     /**
      * 名称
